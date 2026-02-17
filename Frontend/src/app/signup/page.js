@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Swal from 'sweetalert2'; // นำเข้า SweetAlert2
+import Swal from 'sweetalert2';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -31,45 +31,33 @@ export default function SignupPage() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch('http://localhost:5000/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
       const data = await response.json();
-
       if (response.ok) {
-        // --- แจ้งเตือนสำเร็จ (สีเขียว) ---
         Swal.fire({
           icon: 'success',
           title: 'สมัครสมาชิกสำเร็จ! 🎉',
           text: 'สร้างบัญชีเรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
           iconColor: '#10B981',
           confirmButtonColor: '#7c3aed',
-          customClass: {
-            popup: 'swal-rounded'
-          }
-        }).then(() => {
-          router.push('/login');
-        });
+          customClass: { popup: 'swal-rounded' }
+        }).then(() => { router.push('/login'); });
       } else {
-        // --- แจ้งเตือนผิดพลาดจากระบบ (สีแดง) ---
         Swal.fire({
           icon: 'error',
           title: 'สมัครสมาชิกไม่สำเร็จ',
           text: data.error || 'เกิดข้อผิดพลาดในการสมัคร',
           iconColor: '#EF4444',
           confirmButtonColor: '#EF4444',
-          customClass: {
-            popup: 'swal-rounded'
-          }
+          customClass: { popup: 'swal-rounded' }
         });
       }
     } catch (error) {
-      // --- แจ้งเตือนกรณีเชื่อมต่อไม่ได้ (สีแดง) ---
       Swal.fire({
         icon: 'error',
         title: 'Connection Error',
@@ -88,16 +76,13 @@ export default function SignupPage() {
         .btn-hover:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-hover:active { transform: translateY(0); }
         .input-focus:focus-within { border-color: #C084FC !important; box-shadow: 0 0 0 4px rgba(192, 132, 252, 0.1); }
-        
-        /* ปรับความมนของ SweetAlert */
-        .swal-rounded {
-          border-radius: 30px !important;
-        }
+        .swal-rounded { border-radius: 30px !important; }
       `}</style>
 
       <div className={isVisible ? 'page-fade' : ''} style={containerStyle}>
         
-        <div style={toggleContainerStyle}>
+        {/* Toggle Switch */}
+        <div style={{ ...toggleContainerStyle, margin: '0 auto' }}>
           <div style={{
             ...slidingBgStyle,
             left: isSwitching ? '50%' : '4px', 
@@ -109,9 +94,16 @@ export default function SignupPage() {
           <div onClick={() => handleSwitchPage('/login')} style={{ ...toggleTextStyle, color: '#9ca3af', cursor: 'pointer' }}>เข้าสู่ระบบ</div>
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '32px', marginTop: '10px', alignSelf: 'flex-start' }}>
+        {/* --- โลโก้ Social จัดให้อยู่ตรงกลาง --- */}
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '32px', marginTop: '30px', justifyContent: 'center', width: '100%' }}>
           {['f', 'G', 'A'].map((icon, i) => (
-            <div key={i} className="btn-hover" style={socialButtonStyle}>{icon}</div>
+            <div 
+              key={i} 
+              className="btn-hover" 
+              style={{ ...socialButtonStyle, alignItems: 'center', display: 'flex' }} 
+            >
+              {icon}
+            </div>
           ))}
         </div>
 
@@ -121,7 +113,7 @@ export default function SignupPage() {
           <div style={lineStyle}></div>
         </div>
 
-        <form onSubmit={handleSignup} style={formWrapperStyle}>
+        <form onSubmit={handleSignup} style={{ ...formWrapperStyle, margin: '0 auto' }}>
            <div style={inputGroupStyle}>
              <label style={labelStyle}>ชื่อ</label>
              <div className="input-focus" style={inputContainerStyle}>
@@ -154,7 +146,8 @@ export default function SignupPage() {
              </div>
            </div>
 
-          <div style={{ ...toggleContainerStyle, marginTop: '10px', height: '54px', backgroundColor: '#f8fafc', maxWidth: '100%', border: '1px solid #f1f5f9' }}>
+          {/* Gender Switch จัดให้อยู่ตรงกลาง */}
+          <div style={{ ...toggleContainerStyle, marginTop: '10px', height: '54px', backgroundColor: '#f8fafc', maxWidth: '100%', border: '1px solid #f1f5f9', margin: '0 auto' }}>
             <div style={{
               ...slidingBgStyle,
               left: formData.gender === 'male' ? '4px' : '50%', 
@@ -167,12 +160,12 @@ export default function SignupPage() {
             <div onClick={() => setFormData({...formData, gender: 'female'})} style={{ ...toggleTextStyle, color: formData.gender === 'female' ? '#fff' : '#94a3b8', cursor: 'pointer' }}>หญิง</div>
           </div>
 
-          <button type="submit" className="btn-hover" style={{...submitButtonStyle, background: 'linear-gradient(135deg, #C084FC, #7c3aed)', marginTop: '25px'}}>
+          <button type="submit" className="btn-hover" style={{...submitButtonStyle, background: 'linear-gradient(135deg, #C084FC, #7c3aed)', marginTop: '25px', textAlign: 'center', margin: '25px auto 0 auto'}}>
             สมัครสมาชิก
           </button>
         </form>
 
-        <p style={{ marginTop: '25px', fontSize: '0.9rem', color: '#94a3b8' }}>
+        <p style={{ marginTop: '25px', fontSize: '0.9rem', color: '#94a3b8', textAlign: 'center' }}>
           มีบัญชีอยู่แล้ว? <span onClick={() => handleSwitchPage('/login')} style={{ color: '#7c3aed', fontWeight: '700', cursor: 'pointer' }}>เข้าสู่ระบบที่นี่</span>
         </p>
       </div>
@@ -180,9 +173,9 @@ export default function SignupPage() {
   );
 }
 
-// --- Styles (คงเดิม) ---
+// --- Styles (คงเดิมและปรับปรุงบางส่วน) ---
 const mainBgStyle = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', backgroundImage: 'radial-gradient(at 0% 0%, rgba(226, 209, 249, 0.2) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(192, 132, 252, 0.05) 0, transparent 50%)', padding: '100px 20px 40px 20px' };
-const containerStyle = { backgroundColor: '#ffffff', width: '100%', maxWidth: '500px', borderRadius: '40px', padding: '50px 40px', boxShadow: '0 25px 80px rgba(0, 0, 0, 0.07)', border: '1px solid #f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', transition: 'all 0.3s' };
+const containerStyle = { backgroundColor: '#ffffff', width: '100%', maxWidth: '500px', borderRadius: '40px', padding: '50px 40px', boxShadow: '0 25px 80px rgba(0, 0, 0, 0.07)', border: '1px solid #f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'stretch', transition: 'all 0.3s' };
 const toggleContainerStyle = { display: 'flex', backgroundColor: '#f1f5f9', borderRadius: '25px', padding: '5px', position: 'relative', cursor: 'pointer', height: '56px', alignItems: 'center', width: '100%', maxWidth: '340px' };
 const slidingBgStyle = { position: 'absolute', width: 'calc(50% - 10px)', height: 'calc(100% - 10px)', borderRadius: '20px', zIndex: 1 };
 const toggleTextStyle = { flex: 1, zIndex: 2, fontWeight: '700', fontSize: '0.95rem', textAlign: 'center' };
@@ -192,6 +185,6 @@ const inputContainerStyle = { display: 'flex', alignItems: 'center', width: '100
 const inputFieldStyle = { flex: 1, border: 'none', outline: 'none', backgroundColor: 'transparent', fontSize: '0.95rem', color: '#1e293b' };
 const labelStyle = { fontSize: '0.85rem', fontWeight: '700', color: '#475569', marginBottom: '8px', marginLeft: '4px' };
 const socialButtonStyle = { width: '52px', height: '52px', borderRadius: '18px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', backgroundColor: '#fff', boxShadow: '0 5px 15px rgba(0,0,0,0.02)', transition: 'all 0.2s' };
-const submitButtonStyle = { width: '100%', maxWidth: '340px', padding: '18px', color: '#fff', border: 'none', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 10px 25px rgba(124, 58, 237, 0.25)', transition: 'all 0.3s' };
+const submitButtonStyle = { width: '100%', maxWidth: '340px', padding: '18px', color: '#fff', border: 'none', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 10px 25px rgba(124, 58, 237, 0.25)', transition: 'all 0.3s', display: 'block' };
 const dividerStyle = { display: 'flex', alignItems: 'center', margin: '25px 0', width: '100%' };
 const lineStyle = { flex: 1, height: '1px', backgroundColor: '#f1f5f9' };

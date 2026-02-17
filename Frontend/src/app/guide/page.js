@@ -34,7 +34,7 @@ export default function GuidePage() {
             <h3 style={stepTitleStyle}>เข้าสู่ระบบหรือสร้างบัญชี</h3>
             <p style={stepDetailStyle}>
               กดปุ่มสลับที่ด้านบนเพื่อเลือก <b>"เข้าสู่ระบบ"</b> หรือ <b>"สมัครสมาชิก"</b> 
-              แถบสีจะสไลด์ตามที่คุณเลือกเพื่อความชัดเจน
+              เพื่อให้ระบบจำข้อมูลประวัติและรายการโปรดของคุณได้
             </p>
           </div>
 
@@ -43,8 +43,8 @@ export default function GuidePage() {
             <div style={{ ...iconStyle, background: 'linear-gradient(135deg, #C084FC, #7c3aed)' }}>2</div>
             <h3 style={stepTitleStyle}>ระบุข้อมูลส่วนตัว</h3>
             <p style={stepDetailStyle}>
-              กรอกชื่อ-นามสกุล และอีเมลของคุณ พร้อมเลือกเพศโดยการ <b>"สไลด์ปุ่ม"</b> 
-              ซึ่งจะแสดงสีฟ้าสำหรับชาย และชมพูสำหรับหญิง
+              กรอกข้อมูลเบื้องต้น พร้อมเลือกเพศโดยการ <b>"สไลด์ปุ่ม"</b> 
+              ซึ่งจะแสดงสีฟ้าสำหรับชาย และชมพูสำหรับหญิง เพื่อการแนะนำที่แม่นยำ
             </p>
           </div>
 
@@ -53,7 +53,7 @@ export default function GuidePage() {
             <div style={{ ...iconStyle, background: 'linear-gradient(135deg, #7DD3FC, #3B82F6)' }}>3</div>
             <h3 style={stepTitleStyle}>เลือกอารมณ์ (Mood)</h3>
             <p style={stepDetailStyle}>
-              เมื่อเข้าสู่ระบบแล้ว ให้เลือกความรู้สึกปัจจุบันของคุณ เช่น "อยากพักผ่อน" 
+              เมื่ออยู่ที่หน้าแรก ให้เลือกความรู้สึกปัจจุบันของคุณ เช่น "อยากพักผ่อน" 
               หรือ "ต้องการพลัง" เพื่อให้ระบบช่วยคัดกรองสถานที่
             </p>
           </div>
@@ -71,12 +71,14 @@ export default function GuidePage() {
 
         {/* Footer Actions */}
         <div style={{ marginTop: '40px' }}>
+          {/* แก้ไขตรงนี้: เปลี่ยน path เป็น '/' และเปลี่ยนข้อความ */}
           <button 
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/')}
             style={primaryButtonStyle}
           >
-            ไปที่หน้าเข้าสู่ระบบเลย
+            เริ่มใช้งานหน้าแรกเลย
           </button>
+          
           <p 
             onClick={() => router.push('/contact')}
             style={{ marginTop: '20px', color: '#6D28D9', fontWeight: '600', cursor: 'pointer' }}
@@ -89,7 +91,7 @@ export default function GuidePage() {
   );
 }
 
-// --- Styles ---
+// --- Styles (คงเดิม) ---
 const mainBgStyle = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', backgroundImage: 'radial-gradient(at 0% 0%, rgba(226, 209, 249, 0.2) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(109, 40, 217, 0.05) 0, transparent 50%)', padding: '80px 20px' };
 const containerStyle = { width: '100%', maxWidth: '1000px', textAlign: 'center', opacity: 0 };
 const mainTitleStyle = { fontSize: '2.8rem', fontWeight: '900', color: '#1E293B', marginBottom: '15px', letterSpacing: '-1px' };

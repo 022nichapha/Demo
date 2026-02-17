@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
@@ -41,6 +40,12 @@ export default function Navbar() {
     };
   }, []);
 
+  // ฟังก์ชันคลิกโลโก้แล้วรีเฟรชหน้า Home (Hard Refresh)
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+    window.location.href = '/'; 
+  };
+
   const handleLogout = () => {
     Swal.fire({
       title: 'ยืนยันการออกจากระบบ?',
@@ -68,53 +73,63 @@ export default function Navbar() {
         .swal-rounded { border-radius: 30px !important; }
         .nav-btn:hover { background-color: #F3F4F6; transform: translateY(-1px); }
         .signup-purple-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(109, 40, 217, 0.3); }
-        .heart-icon-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; transition: transform 0.2s; }
-        .heart-icon-btn:hover { transform: scale(1.15); }
+        .logo-hover { transition: transform 0.3s ease; }
+        .logo-hover:hover { transform: scale(1.05); }
+        
+        .heart-icon-btn { 
+          background: none; border: none; cursor: pointer; display: flex; 
+          align-items: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+          position: relative;
+        }
+        .heart-icon-btn:hover { transform: scale(1.2); }
+        .heart-active { filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.4)); }
       `}</style>
 
       <nav style={navContainerStyle}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
+        {/* โลโก้ขนาด 75px + คลิกแล้วรีเฟรช */}
+        <div onClick={handleLogoClick} className="logo-hover" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
           <img src="/logo.png" alt="Logo" style={logoImgStyle} />
-        </Link>
+        </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <Link href="/guide" style={navButtonStyle} className="nav-btn">คู่มือใช้งาน</Link>
-          <Link href="/contact" style={navButtonStyle} className="nav-btn">ติดต่อ</Link>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          <a href="/guide" style={navButtonStyle} className="nav-btn">คู่มือใช้งาน</a>
+          <a href="/contact" style={navButtonStyle} className="nav-btn">ติดต่อ</a>
           <div style={dividerVerticalStyle}></div>
 
           {user ? (
             <div ref={dropdownRef} style={{ display: 'flex', alignItems: 'center', gap: '15px', position: 'relative' }}>
               
-              {/* เเก้ไขตรงนี้: คลิกเเล้วเด้งไปหน้ารายการโปรดโดยตรง */}
               <button 
                 onClick={() => router.push('/history?tab=favorites')} 
-                className="heart-icon-btn"
+                className={`heart-icon-btn ${hasFavorites ? 'heart-active' : ''}`}
                 title="รายการโปรด"
               >
+                {/* Modern Heart Icon */}
                 <svg 
-                  width="24" height="24" viewBox="0 0 24 24" 
+                  width="28" height="28" viewBox="0 0 24 24" 
                   fill={hasFavorites ? "#EF4444" : "none"} 
-                  stroke={hasFavorites ? "#EF4444" : "#1F2937"} 
-                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  stroke={hasFavorites ? "#EF4444" : "#4B5563"} 
+                  strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
                 >
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.51 4.05 3 5.5l7 7Z" />
                 </svg>
+                {hasFavorites && <span style={redDotStyle}></span>}
               </button>
 
               <div onClick={() => setIsProfileOpen(!isProfileOpen)} style={{...profileTriggerStyle, backgroundColor: isProfileOpen ? '#EDE9FE' : '#F3F4F6'}}>
-                <img src={user.profileImage || "/avatar-placeholder.png"} alt="Profile" style={avatarLargeStyle} />
-                <span style={{fontSize: '0.9rem', fontWeight: '700', color: '#4B5563'}}>Menu</span>
+                <img src={user.profileImage || "/avatar-placeholder.png"} alt="Profile" style={avatarStyle} />
+                <span style={{fontSize: '0.95rem', fontWeight: '700', color: '#4B5563'}}>เมนู</span>
               </div>
 
               {isProfileOpen && (
                 <div style={dropdownMenuStyle}>
                   <div style={dropdownHeaderStyle}>
-                    <img src={user.profileImage || '/avatar-placeholder.png'} alt="Profile" style={avatarLargeStyle} />
-                    <div style={{ fontWeight: '700', marginTop: '8px' }}>{user.firstName}</div>
+                    <img src={user.profileImage || '/avatar-placeholder.png'} alt="Profile" style={avatarStyle} />
+                    <div style={{ fontWeight: '800', marginTop: '10px', color: '#1E1B4B', fontSize: '1rem' }}>{user.firstName}</div>
                   </div>
                   <hr style={dropdownDividerStyle} />
-                  <Link href="/profile" onClick={() => setIsProfileOpen(false)} style={dropdownItemStyle}>โปรไฟล์</Link>
-                  <Link href="/history" onClick={() => setIsProfileOpen(false)} style={dropdownItemStyle}>ประวัติการท่องเที่ยว</Link>
+                  <div onClick={() => { router.push('/profile'); setIsProfileOpen(false); }} style={dropdownItemStyle}>โปรไฟล์</div>
+                  <div onClick={() => { router.push('/history'); setIsProfileOpen(false); }} style={dropdownItemStyle}>ประวัติการใช้งาน</div>
                   <hr style={dropdownDividerStyle} />
                   <div onClick={handleLogout} style={{ ...dropdownItemStyle, color: '#EF4444' }}>ออกจากระบบ</div>
                 </div>
@@ -122,8 +137,8 @@ export default function Navbar() {
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <Link href="/login" style={loginLinkStyle}>Login</Link>
-              <Link href="/signup" className="signup-purple-btn" style={signupBtnStyle}>Get Started</Link>
+              <a href="/login" style={loginLinkStyle}>Login</a>
+              <a href="/signup" className="signup-purple-btn" style={signupBtnStyle}>Get Started</a>
             </div>
           )}
         </div>
@@ -132,17 +147,41 @@ export default function Navbar() {
   );
 }
 
-// --- Styles (คงเดิม) ---
-const wrapperStyle = { position: 'fixed', top: '25px', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 1000, padding: '0 20px' };
-const navContainerStyle = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 25px', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(12px)', borderRadius: '60px', border: '1px solid rgba(109, 40, 217, 0.15)', boxShadow: '0 12px 40px rgba(0, 0, 0, 0.06)', width: '100%', maxWidth: '1100px' };
-const logoImgStyle = { height: '40px', cursor: 'pointer' };
-const navButtonStyle = { textDecoration: 'none', color: '#4B5563', fontSize: '0.9rem', fontWeight: '600', padding: '10px 18px', borderRadius: '25px', backgroundColor: 'transparent' };
-const dividerVerticalStyle = { height: '20px', width: '1px', backgroundColor: '#E5E7EB', margin: '0 5px' };
-const profileTriggerStyle = { display: 'flex', alignItems: 'center', gap: '10px', padding: '5px 15px', borderRadius: '30px', cursor: 'pointer', border: '1px solid #E5E7EB' };
-const avatarLargeStyle = { width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #6D28D9' };
+// --- Styles ปรับจูนเพื่อรองรับโลโก้ 75px ---
+const wrapperStyle = { position: 'fixed', top: '20px', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 1000, padding: '0 20px' };
+
+const navContainerStyle = { 
+  display: 'flex', 
+  alignItems: 'center', 
+  justifyContent: 'space-between', 
+  padding: '2px 25px', // ลด padding แนวตั้งเพื่อให้รับกับขนาดโลโก้
+  backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+  backdropFilter: 'blur(12px)', 
+  borderRadius: '60px', 
+  border: '1px solid rgba(109, 40, 217, 0.15)', 
+  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.06)', 
+  width: '100%', 
+  maxWidth: '1100px' 
+};
+
+const logoImgStyle = { 
+  height: '75px', 
+  width: 'auto', 
+  cursor: 'pointer' 
+};
+
+const redDotStyle = {
+  position: 'absolute', top: '0px', right: '0px', width: '10px', height: '10px',
+  backgroundColor: '#EF4444', borderRadius: '50%', border: '2px solid #fff'
+};
+
+const navButtonStyle = { textDecoration: 'none', color: '#4B5563', fontSize: '0.9rem', fontWeight: '600', padding: '10px 18px', borderRadius: '25px' };
+const dividerVerticalStyle = { height: '24px', width: '1px', backgroundColor: '#E5E7EB', margin: '0 5px' };
+const profileTriggerStyle = { display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 14px', borderRadius: '35px', cursor: 'pointer', border: '1px solid #E5E7EB', transition: '0.2s' };
+const avatarStyle = { width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #6D28D9' };
 const loginLinkStyle = { textDecoration: 'none', color: '#4B5563', fontSize: '0.95rem', fontWeight: '700' };
 const signupBtnStyle = { color: 'white', backgroundColor: '#6D28D9', padding: '12px 28px', borderRadius: '35px', textDecoration: 'none', fontSize: '0.95rem', fontWeight: '700', boxShadow: '0 4px 15px rgba(109, 40, 217, 0.2)' };
-const dropdownMenuStyle = { position: 'absolute', top: '60px', right: '0', width: '220px', backgroundColor: 'white', borderRadius: '20px', boxShadow: '0 15px 40px rgba(0,0,0,0.1)', padding: '12px', border: '1px solid #F1F5F9' };
-const dropdownHeaderStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 0' };
-const dropdownItemStyle = { padding: '10px', textDecoration: 'none', color: '#475569', fontSize: '0.9rem', fontWeight: '600', borderRadius: '10px', textAlign: 'center', display: 'block', cursor: 'pointer' };
+const dropdownMenuStyle = { position: 'absolute', top: '75px', right: '0', width: '230px', backgroundColor: 'white', borderRadius: '24px', boxShadow: '0 20px 50px rgba(0,0,0,0.12)', padding: '12px', border: '1px solid #F1F5F9' };
+const dropdownHeaderStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '15px 0' };
+const dropdownItemStyle = { padding: '12px', textDecoration: 'none', color: '#475569', fontSize: '0.9rem', fontWeight: '600', borderRadius: '14px', textAlign: 'center', display: 'block', cursor: 'pointer', transition: '0.2s' };
 const dropdownDividerStyle = { border: 'none', borderTop: '1px solid #F1F5F9', margin: '8px 0' };

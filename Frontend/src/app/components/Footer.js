@@ -41,7 +41,7 @@ export default function Footer() {
         <div style={{ display: 'flex', gap: '15px', marginTop: '5px', fontSize: '1.2rem' }}>
           <Link href="#" style={{ textDecoration: 'none', color: '#6D28D9' }}>📞</Link>
           <Link href="#" style={{ textDecoration: 'none', color: '#6D28D9' }}> Facebook </Link>
-          <Link href="#" style={{ textDecoration: 'none', color: '#6D28D9' }}> Line </Link>
+          <Link href="#" style={{ textDecoration: 'none', color: '#6D28D9' }}> Instragram </Link>
         </div>
       </div>
     </footer>
