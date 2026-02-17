@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // เพิ่มการใช้ Router
+import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 
-// --- DATA SECTION (เหมือนเดิม) ---
+// --- DATA SECTION ---
 const moods = [
-  { id: 'happy', name: 'สดใส', emoji: '😊', keywords: ['ดีใจ', 'แฮปปี้', 'ถูกหวย', 'ชนะ', 'สนุก'] },
-  { id: 'angry', name: 'หัวร้อน', emoji: '🔥', keywords: ['โมโห', 'หงุดหงิด', 'รถติด', 'ร้อน', 'โกรธ'] },
-  { id: 'bored', name: 'เบื่อๆ', emoji: '😴', keywords: ['เซ็ง', 'ขี้เกียจ', 'ว่าง', 'ไม่มีไรทำ'] },
-  { id: 'lonely', name: 'เหงา', emoji: '💜', keywords: ['คนเดียว', 'คิดถึง', 'โสด', 'ไม่มีใครคุย'] },
-  { id: 'sad', name: 'เครียด/เศร้า', emoji: '😢', keywords: ['ปวดท้อง', 'งานเยอะ', 'สอบตก', 'ร้องไห้', 'นอยด์', 'ปวดหัว'] }
+  { id: 'happy', name: 'สดใส', emoji: '😊', color: '#FEF3C7', keywords: ['ดีใจ', 'แฮปปี้', 'ถูกหวย', 'ชนะ', 'สนุก'] },
+  { id: 'angry', name: 'หัวร้อน', emoji: '🔥', color: '#FEE2E2', keywords: ['โมโห', 'หงุดหงิด', 'รถติด', 'ร้อน', 'โกรธ'] },
+  { id: 'bored', name: 'เบื่อๆ', emoji: '😴', color: '#F3F4F6', keywords: ['เซ็ง', 'ขี้เกียจ', 'ว่าง', 'ไม่มีไรทำ'] },
+  { id: 'lonely', name: 'เหงา', emoji: '💜', color: '#F5F3FF', keywords: ['คนเดียว', 'คิดถึง', 'โสด', 'ไม่มีใครคุย'] },
+  { id: 'sad', name: 'เศร้า', emoji: '😢', color: '#DBEAFE', keywords: ['ปวดท้อง', 'งานเยอะ', 'สอบตก', 'ร้องไห้', 'นอยด์', 'ปวดหัว'] }
 ];
 
 const allLocations = {
@@ -32,11 +32,12 @@ const allLocations = {
 };
 
 export default function HomePage() {
-  const router = useRouter(); // เรียกใช้ router
+  const router = useRouter();
   const resultsRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [displayData, setDisplayData] = useState({ mood: null, personality: '', category: '', show: false });
 
+  // ปรับปรุงการแจ้งเตือนให้น่าใช้งานขึ้น (HCI: Aesthetic and Consistency)
   const handleProcessSearch = async () => {
     const input = searchTerm.trim().toLowerCase();
     if (!input) return;
@@ -47,35 +48,53 @@ export default function HomePage() {
 
     if (detectedMood) {
       const { isConfirmed } = await Swal.fire({
-        title: `ดูเหมือนคุณจะรู้สึก "${detectedMood.name}"`,
-        text: `เพราะคุณบอกว่า "${searchTerm}" ให้เราช่วยหาที่พักใจให้ไหม?`,
-        icon: 'info',
+        title: `ดูเหมือนคุณจะรู้สึก <span style="color:#6366F1">${detectedMood.name}</span>`,
+        html: `ให้ <b>พิกัดไหนดี</b> ช่วยหาที่พักใจให้คุณนะ?`,
+        iconHtml: `<span style="font-size: 3rem">${detectedMood.emoji}</span>`,
         showCancelButton: true,
-        confirmButtonText: 'ลุยเลย!',
+        confirmButtonText: 'หาพิกัดให้เลย!',
         cancelButtonText: 'พิมพ์ใหม่',
-        confirmButtonColor: '#1E1B4B'
+        confirmButtonColor: '#1E1B4B',
+        borderRadius: '25px'
       });
       if (isConfirmed) startSearch(detectedMood);
     } else {
-      Swal.fire('ไม่แน่ใจเลย...', 'ลองพิมพ์คำว่า ปวดท้อง, เหงา, หรือ ดีใจ ดูนะ', 'question');
+      Swal.fire({
+        title: 'ลองใหม่อีกครั้ง?',
+        text: 'ลองบอกความรู้สึก เช่น "เครียดจัง" หรือ "มีความสุข"',
+        icon: 'question',
+        confirmButtonColor: '#1E1B4B',
+        borderRadius: '25px'
+      });
     }
   };
 
   const startSearch = async (moodObj) => {
     setSearchTerm('');
+    // HCI: Step-by-step Selection (Reducing Cognitive Load)
     const { value: person } = await Swal.fire({
-      title: 'สไตล์ของคุณคือ?',
+      title: 'บุคลิกของคุณเป็นแบบไหน?',
       html: `
         <div class="swal-custom-options">
-          <button class="mega-btn" data-value="introvert"><span class="mega-emoji">🌿</span> Introvert</button>
-          <button class="mega-btn" data-value="extrovert"><span class="mega-emoji">🥳</span> Extrovert</button>
-          <button class="mega-btn" data-value="ambivert"><span class="mega-emoji">⚖️</span> Ambivert</button>
+          <button class="mega-option" data-value="introvert">
+            <div class="option-icon">🌿</div>
+            <div class="option-text"><b>Introvert</b><br><small>ชอบความเงียบ สงบ</small></div>
+          </button>
+          <button class="mega-option" data-value="extrovert">
+            <div class="option-icon">🥳</div>
+            <div class="option-text"><b>Extrovert</b><br><small>ชอบความสนุก คึกคัก</small></div>
+          </button>
+          <button class="mega-option" data-value="ambivert">
+            <div class="option-icon">⚖️</div>
+            <div class="option-text"><b>Ambivert</b><br><small>ชอบบรรยากาศกลางๆ</small></div>
+          </button>
         </div>
       `,
       showConfirmButton: false,
-      width: '600px',
+      width: '500px',
+      borderRadius: '30px',
       didOpen: (popup) => {
-        popup.querySelectorAll('.mega-btn').forEach(btn => {
+        popup.querySelectorAll('.mega-option').forEach(btn => {
           btn.onclick = () => {
             popup.setAttribute('data-val', btn.getAttribute('data-value'));
             Swal.clickConfirm();
@@ -88,18 +107,19 @@ export default function HomePage() {
     if (!person) return;
 
     const { value: category } = await Swal.fire({
-      title: 'อยากไปบรรยากาศแบบไหน?',
+      title: 'อยากไปที่ไหนดี?',
       html: `
         <div class="swal-custom-options">
-          <button class="mega-btn" data-value="green">🌳 พื้นที่สีเขียว</button>
-          <button class="mega-btn" data-value="water">🌊 แหล่งน้ำ</button>
-          <button class="mega-btn" data-value="cafe">☕ คาเฟ่</button>
+          <button class="mega-option" data-value="green">🌳 พื้นที่สีเขียว</button>
+          <button class="mega-option" data-value="water">🌊 แหล่งน้ำ</button>
+          <button class="mega-option" data-value="cafe">☕ คาเฟ่</button>
         </div>
       `,
       showConfirmButton: false,
-      width: '600px',
+      width: '500px',
+      borderRadius: '30px',
       didOpen: (popup) => {
-        popup.querySelectorAll('.mega-btn').forEach(btn => {
+        popup.querySelectorAll('.mega-option').forEach(btn => {
           btn.onclick = () => {
             popup.setAttribute('data-val', btn.getAttribute('data-value'));
             Swal.clickConfirm();
@@ -114,7 +134,6 @@ export default function HomePage() {
     }
   };
 
-  // --- ฟังก์ชันนำทางไปยังหน้ารายละเอียด ---
   const handleGoToDetail = (id) => {
     router.push(`/location/${id}`);
   };
@@ -129,45 +148,60 @@ export default function HomePage() {
     <main className="main-container">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&display=swap');
-        .main-container { padding: 80px 20px; font-family: 'Anuphan', sans-serif; background: #fdfbff; min-height: 100vh; }
-        .hero-title { font-size: 3rem; font-weight: 700; color: #1E1B4B; text-align: center; margin-bottom: 40px; }
         
-        .search-wrapper { max-width: 600px; margin: 0 auto 40px; display: flex; gap: 10px; background: white; padding: 10px; border-radius: 100px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        .search-input { flex: 1; border: none; padding: 10px 20px; outline: none; font-size: 1.1rem; border-radius: 100px; }
-        .search-btn { background: #1E1B4B; color: white; border: none; padding: 0 30px; border-radius: 100px; cursor: pointer; font-weight: 700; }
+        /* Global & Layout */
+        .main-container { padding: 100px 20px; font-family: 'Anuphan', sans-serif; background: #F8F9FF; min-height: 100vh; }
+        .hero-section { text-align: center; margin-bottom: 60px; }
+        .hero-title { font-size: 3.5rem; font-weight: 800; color: #1E1B4B; margin-bottom: 15px; letter-spacing: -1px; }
+        .hero-subtitle { color: #6B7280; font-size: 1.1rem; }
 
-        .mood-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
-        .mood-card { background: white; border-radius: 20px; width: 110px; height: 110px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
-        .mood-card:hover { transform: translateY(-8px); box-shadow: 0 12px 25px rgba(0,0,0,0.1); }
-        .mood-emoji { font-size: 2rem; }
-        .mood-name { font-weight: 700; font-size: 0.9rem; color: #1E1B4B; }
+        /* Search Bar (HCI: Prominence & Clarity) */
+        .search-wrapper { max-width: 650px; margin: 40px auto; display: flex; gap: 10px; background: white; padding: 12px; border-radius: 100px; box-shadow: 0 20px 40px rgba(30,27,75,0.05); border: 2px solid #EEF2FF; transition: 0.3s; }
+        .search-wrapper:focus-within { border-color: #6366F1; box-shadow: 0 20px 40px rgba(99,102,241,0.1); }
+        .search-input { flex: 1; border: none; padding: 10px 25px; outline: none; font-size: 1.1rem; border-radius: 100px; font-family: 'Anuphan'; }
+        .search-btn { background: #1E1B4B; color: white; border: none; padding: 0 35px; border-radius: 100px; cursor: pointer; font-weight: 700; transition: 0.3s; }
+        .search-btn:hover { background: #312E81; transform: scale(1.05); }
 
-        .empty-container { max-width: 900px; height: 400px; margin: 0 auto; border: 2px dashed #D1D5DB; border-radius: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .compass-icon { width: 45px; height: 45px; opacity: 0.6; margin-bottom: 15px; }
-        .empty-text { font-size: 1rem; color: #9CA3AF; font-weight: 500; text-align: center; }
+        /* Mood Chips (HCI: Recognition) */
+        .mood-grid { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 80px; }
+        .mood-card { background: white; border-radius: 25px; padding: 15px 25px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1.5px solid #F1F5F9; }
+        .mood-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); border-color: #6366F1; }
+        .mood-emoji { font-size: 1.5rem; }
+        .mood-name { font-weight: 700; color: #1E1B4B; }
 
-        .result-wrapper { max-width: 1100px; margin: 0 auto; text-align: left; }
-        .places-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; justify-content: start; } 
-        .place-card { border-radius: 35px; overflow: hidden; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; text-align: left; transition: 0.3s; cursor: pointer; } 
-        .place-card:hover { transform: scale(1.02); }
+        /* Results Card (HCI: Information Architecture) */
+        .result-wrapper { max-width: 1000px; margin: 0 auto; animation: fadeIn 0.6s ease-out; }
+        .result-header { background: #1E1B4B; color: white; padding: 30px; border-radius: 30px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; }
+        .places-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .place-card { border-radius: 30px; overflow: hidden; background: white; border: 1.5px solid #F1F5F9; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; position: relative; }
+        .place-card:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(30,27,75,0.1); }
+        .place-img { width: '100%'; height: 240px; object-fit: cover; }
         
-        .info-tag { background: #F3F4F6; padding: 5px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; color: #4B5563; display: inline-flex; align-items: center; gap: 5px; }
+        .info-tag { background: #F3F4F6; padding: 6px 14px; border-radius: 100px; font-size: 0.85rem; font-weight: 700; color: #4B5563; }
         
-        .mega-btn { background: #fff; border: 2px solid #F1F5F9; border-radius: 15px; padding: 20px; width: 100%; margin-bottom: 10px; cursor: pointer; font-weight: 700; text-align: left; font-size: 1.1rem; }
+        /* Swal Custom Style */
+        .mega-option { background: #fff; border: 2px solid #F1F5F9; border-radius: 20px; padding: 18px; width: 100%; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.2s; text-align: left; }
+        .mega-option:hover { border-color: #6366F1; background: #F8FAFF; }
+        .option-icon { font-size: 1.8rem; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
 
-      <h1 className="hero-title">วันนี้พิกัดไหนดี?</h1>
+      <div className="hero-section">
+        <h1 className="hero-title">วันนี้พิกัดไหนดี?</h1>
+        <p className="hero-subtitle">ระบายความรู้สึกของคุณออกมา แล้วเราจะพาคุณไปหาที่พักใจ</p>
+      </div>
 
       <div className="search-wrapper">
         <input 
           type="text" 
           className="search-input" 
-          placeholder="พิมพ์ความรู้สึกตอนนี้ (เช่น ปวดท้อง, ถูกหวย...)" 
+          placeholder="บอกเล่าเรื่องราวของคุณที่นี่..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleProcessSearch()}
         />
-        <button className="search-btn" onClick={handleProcessSearch}>ประมวลผล</button>
+        <button className="search-btn" onClick={handleProcessSearch}>ค้นหา</button>
       </div>
       
       <div className="mood-grid">
@@ -181,33 +215,37 @@ export default function HomePage() {
 
       {displayData.show ? (
         <section ref={resultsRef} className="result-wrapper">
-          <div style={{ borderLeft: '6px solid #1E1B4B', paddingLeft: '15px', marginBottom: '35px' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>พิกัดแนะนำสำหรับคุณ</h2>
-            <p style={{ color: '#6B7280' }}>
-               อารมณ์: {displayData.mood.name} • สไตล์: {displayData.personality.toUpperCase()} • บรรยากาศ: {displayData.category}
-            </p>
+          <div className="result-header">
+            <div>
+              <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '5px' }}>ผลลัพธ์พิกัดสำหรับคุณ</p>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>
+                {displayData.mood.emoji} {displayData.mood.name} + {displayData.personality.charAt(0).toUpperCase() + displayData.personality.slice(1)}
+              </h2>
+            </div>
+            <div className="info-tag" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
+              {displayData.category === 'green' ? '🌳 ธรรมชาติ' : displayData.category === 'water' ? '🌊 สายน้ำ' : '☕ คาเฟ่'}
+            </div>
           </div>
 
           <div className="places-grid">
             {locationsList.map(loc => (
               <div key={loc.id} className="place-card" onClick={() => handleGoToDetail(loc.id)}>
-                <img src={loc.img} style={{ width: '100%', height: '220px', objectFit: 'cover' }} />
+                <img src={loc.img} className="place-img" alt={loc.name} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
                 <div style={{ padding: '25px' }}>
-                  <h3 style={{ fontWeight: 800, marginBottom: '8px', fontSize: '1.3rem' }}>{loc.name}</h3>
-                  <p style={{ color: '#6B7280', fontSize: '0.95rem', marginBottom: '20px', lineHeight: '1.5' }}>{loc.info}</p>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <div className="info-tag">📍 {loc.dist}</div>
-                    <div className="info-tag">⭐ {loc.rating}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h3 style={{ fontWeight: 800, fontSize: '1.25rem' }}>{loc.name}</h3>
+                    <span style={{ color: '#F59E0B', fontWeight: 700 }}>⭐ {loc.rating}</span>
                   </div>
+                  <p style={{ color: '#6B7280', fontSize: '0.95rem', marginBottom: '20px', lineHeight: '1.6' }}>{loc.info}</p>
+                  <div className="info-tag">📍 ห่างจากคุณ {loc.dist}</div>
                 </div>
               </div>
             ))}
           </div>
         </section>
       ) : (
-        <div className="empty-container">
-          <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" className="compass-icon" alt="compass" />
-          <p className="empty-text">เลือกอารมณ์หรือพิมพ์ความรู้สึกเพื่อเริ่มปักหมุด</p>
+        <div className="empty-container" style={{ textAlign: 'center', opacity: 0.5, marginTop: '40px' }}>
+          <p>ลองพิมพ์ว่า "วันนี้เหนื่อยจัง" ในช่องค้นหาด้านบนสิ</p>
         </div>
       )}
     </main>

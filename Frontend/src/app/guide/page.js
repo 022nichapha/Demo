@@ -1,6 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { 
+  UserPlus, 
+  Settings2, 
+  SmilePlus, 
+  MapPinCheckInside, 
+  ArrowRight,
+  MessageCircleQuestion,
+  Sparkles
+} from 'lucide-react';
 
 export default function GuidePage() {
   const router = useRouter();
@@ -11,94 +20,192 @@ export default function GuidePage() {
   }, []);
 
   return (
-    <main style={mainBgStyle}>
+    <main className="guide-wrapper">
       <style>{`
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .guide-container { animation: slideIn 0.6s ease-out forwards; }
-        .step-card { transition: all 0.3s ease; }
-        .step-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600;700&display=swap');
+        
+        .guide-wrapper { 
+          min-height: 100vh; 
+          display: flex; 
+          justify-content: center; 
+          align-items: center; 
+          background: #F8FAFC;
+          font-family: 'Anuphan', sans-serif;
+          padding: 40px 20px;
+        }
+
+        .guide-container { 
+          width: 100%; 
+          max-width: 1100px; 
+          text-align: center;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .guide-container.show { opacity: 1; transform: translateY(0); }
+
+        .steps-grid { 
+          display: grid; 
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+          gap: 24px; 
+          margin-top: 50px; 
+        }
+
+        .step-card { 
+          background: white; 
+          padding: 40px 30px; 
+          border-radius: 35px; 
+          border: 1px solid #F1F5F9; 
+          box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          position: relative;
+        }
+
+        .step-card:hover { 
+          transform: translateY(-12px); 
+          box-shadow: 0 25px 50px -12px rgba(109, 40, 217, 0.15);
+          border-color: #DDD6FE;
+        }
+
+        .step-number {
+          position: absolute;
+          top: 20px;
+          right: 25px;
+          font-size: 3rem;
+          font-weight: 900;
+          color: #F1F5F9;
+          z-index: 0;
+        }
+
+        .icon-box {
+          width: 80px; height: 80px; 
+          border-radius: 28px; 
+          display: flex; justify-content: center; align-items: center; 
+          color: #fff; margin-bottom: 25px; 
+          position: relative; z-index: 1;
+          box-shadow: 0 12px 20px -5px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary { 
+          padding: 18px 50px; 
+          background: #1E1B4B; 
+          color: #fff; 
+          border: none; 
+          border-radius: 22px; 
+          font-size: 1.1rem; 
+          font-weight: 700; 
+          cursor: pointer; 
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          transition: 0.3s;
+          box-shadow: 0 10px 25px rgba(30, 27, 75, 0.2);
+        }
+
+        .btn-primary:hover { 
+          background: #6D28D9;
+          transform: scale(1.05);
+          box-shadow: 0 15px 30px rgba(109, 40, 217, 0.3);
+        }
+
+        .help-link {
+          margin-top: 30px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          color: #64748B;
+          font-weight: 600;
+          text-decoration: none;
+          transition: 0.2s;
+        }
+        .help-link:hover { color: #6D28D9; }
       `}</style>
 
-      <div className={isVisible ? 'guide-container' : ''} style={containerStyle}>
-        {/* Header */}
-        <div style={{ marginBottom: '60px' }}>
-          <h1 style={mainTitleStyle}>🚀 วิธีใช้งาน Mood Location Finder</h1>
-          <p style={subtitleStyle}>ค้นหาสถานที่ที่ใช่ ในอารมณ์ที่ชอบ เพียง 4 ขั้นตอนง่ายๆ</p>
-        </div>
+      <div className={`guide-container ${isVisible ? 'show' : ''}`}>
+        {/* Header Section */}
+        <header style={{ marginBottom: '60px' }}>
+          <div style={{ display: 'inline-flex', padding: '8px 20px', background: '#EEF2FF', borderRadius: '100px', color: '#6366F1', fontWeight: '700', fontSize: '0.9rem', marginBottom: '16px' }}>
+            <Sparkles size={16} style={{ marginRight: '8px' }} /> คู่มือเริ่มต้นใช้งาน
+          </div>
+          <h1 style={{ fontSize: '3rem', fontWeight: '900', color: '#1E1B4B', marginBottom: '15px', letterSpacing: '-1.5px' }}>
+            ออกเดินทางตาม <span style={{ color: '#6D28D9' }}>ความรู้สึก</span>
+          </h1>
+          <p style={{ fontSize: '1.2rem', color: '#64748B', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
+            ค้นหาสถานที่ที่ใช่สำหรับคุณผ่าน 4 ขั้นตอนง่ายๆ ที่ออกแบบมาเพื่อความสบายใจของคุณโดยเฉพาะ
+          </p>
+        </header>
 
         {/* Steps Grid */}
-        <div style={gridStyle}>
+        <div className="steps-grid">
           {/* Step 1 */}
-          <div className="step-card" style={cardStyle}>
-            <div style={{ ...iconStyle, background: 'linear-gradient(135deg, #FCA5A5, #F87171)' }}>1</div>
-            <h3 style={stepTitleStyle}>เข้าสู่ระบบหรือสร้างบัญชี</h3>
-            <p style={stepDetailStyle}>
-              กดปุ่มสลับที่ด้านบนเพื่อเลือก <b>"เข้าสู่ระบบ"</b> หรือ <b>"สมัครสมาชิก"</b> 
-              เพื่อให้ระบบจำข้อมูลประวัติและรายการโปรดของคุณได้
+          <article className="step-card">
+            <span className="step-number">01</span>
+            <div className="icon-box" style={{ background: 'linear-gradient(135deg, #818CF8, #6366F1)' }}>
+              <UserPlus size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#1E293B', marginBottom: '12px', zIndex: 1 }}>เข้าร่วมกับเรา</h3>
+            <p style={{ fontSize: '0.95rem', color: '#64748B', lineHeight: '1.6', zIndex: 1 }}>
+              เข้าสู่ระบบหรือสมัครสมาชิกเพื่อ <b>บันทึกสถานที่โปรด</b> และจดจำอารมณ์ของคุณในแต่ละวัน
             </p>
-          </div>
+          </article>
 
           {/* Step 2 */}
-          <div className="step-card" style={cardStyle}>
-            <div style={{ ...iconStyle, background: 'linear-gradient(135deg, #C084FC, #7c3aed)' }}>2</div>
-            <h3 style={stepTitleStyle}>ระบุข้อมูลส่วนตัว</h3>
-            <p style={stepDetailStyle}>
-              กรอกข้อมูลเบื้องต้น พร้อมเลือกเพศโดยการ <b>"สไลด์ปุ่ม"</b> 
-              ซึ่งจะแสดงสีฟ้าสำหรับชาย และชมพูสำหรับหญิง เพื่อการแนะนำที่แม่นยำ
+          <article className="step-card">
+            <span className="step-number">02</span>
+            <div className="icon-box" style={{ background: 'linear-gradient(135deg, #C084FC, #9333EA)' }}>
+              <Settings2 size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#1E293B', marginBottom: '12px', zIndex: 1 }}>ตั้งค่าโปรไฟล์</h3>
+            <p style={{ fontSize: '0.95rem', color: '#64748B', lineHeight: '1.6', zIndex: 1 }}>
+              อัปโหลดรูปและระบุตัวตนของคุณ เพื่อให้ระบบ <b>AI แนะนำพิกัด</b> ได้ตรงกับบุคลิกมากที่สุด
             </p>
-          </div>
+          </article>
 
           {/* Step 3 */}
-          <div className="step-card" style={cardStyle}>
-            <div style={{ ...iconStyle, background: 'linear-gradient(135deg, #7DD3FC, #3B82F6)' }}>3</div>
-            <h3 style={stepTitleStyle}>เลือกอารมณ์ (Mood)</h3>
-            <p style={stepDetailStyle}>
-              เมื่ออยู่ที่หน้าแรก ให้เลือกความรู้สึกปัจจุบันของคุณ เช่น "อยากพักผ่อน" 
-              หรือ "ต้องการพลัง" เพื่อให้ระบบช่วยคัดกรองสถานที่
+          <article className="step-card">
+            <span className="step-number">03</span>
+            <div className="icon-box" style={{ background: 'linear-gradient(135deg, #F472B6, #DB2777)' }}>
+              <SmilePlus size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#1E293B', marginBottom: '12px', zIndex: 1 }}>เลือกอารมณ์</h3>
+            <p style={{ fontSize: '0.95rem', color: '#64748B', lineHeight: '1.6', zIndex: 1 }}>
+              บอกความรู้สึกตอนนี้ของคุณผ่าน <b>Mood Chips</b> หรือพิมพ์ระบายความในใจในช่องค้นหา
             </p>
-          </div>
+          </article>
 
           {/* Step 4 */}
-          <div className="step-card" style={cardStyle}>
-            <div style={{ ...iconStyle, background: 'linear-gradient(135deg, #34D399, #10B981)' }}>4</div>
-            <h3 style={stepTitleStyle}>ไปตามโลเคชั่นที่แนะนำ</h3>
-            <p style={stepDetailStyle}>
-              ระบบจะแสดงแผนที่และสถานที่ที่เหมาะสมที่สุดสำหรับคุณ 
-              คุณสามารถกดดูเส้นทางเพื่อออกเดินทางได้ทันที!
+          <article className="step-card">
+            <span className="step-number">04</span>
+            <div className="icon-box" style={{ background: 'linear-gradient(135deg, #34D399, #059669)' }}>
+              <MapPinCheckInside size={32} />
+            </div>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '800', color: '#1E293B', marginBottom: '12px', zIndex: 1 }}>รับพิกัดพักใจ</h3>
+            <p style={{ fontSize: '0.95rem', color: '#64748B', lineHeight: '1.6', zIndex: 1 }}>
+              เลือกสถานที่ที่แนะนำ แล้วออกเดินทางได้ทันที พร้อม <b>ระบบนำทาง</b> ที่ช่วยให้คุณถึงที่หมายง่ายขึ้น
             </p>
-          </div>
+          </article>
         </div>
 
-        {/* Footer Actions */}
-        <div style={{ marginTop: '40px' }}>
-          {/* แก้ไขตรงนี้: เปลี่ยน path เป็น '/' และเปลี่ยนข้อความ */}
+        {/* Action Section */}
+        <footer style={{ marginTop: '60px' }}>
           <button 
             onClick={() => router.push('/')}
-            style={primaryButtonStyle}
+            className="btn-primary"
           >
-            เริ่มใช้งานหน้าแรกเลย
+            ไปที่หน้าแรกเลย <ArrowRight size={20} />
           </button>
           
-          <p 
-            onClick={() => router.push('/contact')}
-            style={{ marginTop: '20px', color: '#6D28D9', fontWeight: '600', cursor: 'pointer' }}
-          >
-            พบปัญหาการใช้งาน? ติดต่อเรา
-          </p>
-        </div>
+          <br />
+          
+          <a href="#" onClick={(e) => { e.preventDefault(); router.push('/contact'); }} className="help-link">
+            <MessageCircleQuestion size={18} /> พบปัญหาการใช้งาน? ติดต่อทีมสนับสนุน
+          </a>
+        </footer>
       </div>
     </main>
   );
 }
-
-// --- Styles (คงเดิม) ---
-const mainBgStyle = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffffff', backgroundImage: 'radial-gradient(at 0% 0%, rgba(226, 209, 249, 0.2) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(109, 40, 217, 0.05) 0, transparent 50%)', padding: '80px 20px' };
-const containerStyle = { width: '100%', maxWidth: '1000px', textAlign: 'center', opacity: 0 };
-const mainTitleStyle = { fontSize: '2.8rem', fontWeight: '900', color: '#1E293B', marginBottom: '15px', letterSpacing: '-1px' };
-const subtitleStyle = { fontSize: '1.2rem', color: '#64748B', maxWidth: '600px', margin: '0 auto' };
-const gridStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '25px', marginTop: '50px' };
-const cardStyle = { backgroundColor: '#fff', padding: '40px 25px', borderRadius: '35px', border: '1px solid #F1F5F9', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column', alignItems: 'center' };
-const iconStyle = { width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#fff', fontSize: '1.5rem', fontWeight: '800', marginBottom: '25px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' };
-const stepTitleStyle = { fontSize: '1.25rem', fontWeight: '800', color: '#1E293B', marginBottom: '15px' };
-const stepDetailStyle = { fontSize: '0.95rem', color: '#64748B', lineHeight: '1.6' };
-const primaryButtonStyle = { padding: '18px 45px', background: 'linear-gradient(135deg, #6D28D9, #7c3aed)', color: '#fff', border: 'none', borderRadius: '20px', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', boxShadow: '0 10px 25px rgba(109, 40, 217, 0.3)' };

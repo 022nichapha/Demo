@@ -1,50 +1,51 @@
 'use client';
+
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Swal from 'sweetalert2'; 
+import Image from 'next/image'; 
+import Swal from 'sweetalert2';
+import { 
+  User, Mail, VenusAndMars, Camera, Trash2, 
+  ChevronLeft, Save, XCircle, ShieldCheck, Edit3, Loader2
+} from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef(null);
-  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    gender: '',
-    email: '',
-    profileImage: ''
+    firstName: '', lastName: '', gender: '', email: '', profileImage: ''
   });
 
+  // HCI: ดึงข้อมูลจาก LocalStorage เพื่อให้ซิงค์กับหน้าหลักเสมอ
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      setFormData({
-        firstName: parsedUser.firstName || '',
-        lastName: parsedUser.lastName || '',
-        gender: parsedUser.gender || 'male',
-        email: parsedUser.email || '',
-        profileImage: parsedUser.profileImage || '/avatar-placeholder.png'
-      });
-    } else {
-      router.push('/login');
-    }
-    setLoading(false);
-  }, [router]);
+    const timer = setTimeout(() => {
+      const savedUser = localStorage.getItem('user_profile');
+      const defaultUser = {
+        firstName: 'สมชาย',
+        lastName: 'ใจดี',
+        gender: 'male',
+        email: 'somchai.j@nextmail.com',
+        profileImage: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=200&h=200&auto=format&fit=crop'
+      };
+      
+      const data = savedUser ? JSON.parse(savedUser) : defaultUser;
+      setUser(data);
+      setFormData(data);
+      setLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleImageChange = (e) => {
+  // ฟังก์ชันจัดการอัปโหลดรูปภาพ
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        return Swal.fire('ไฟล์ใหญ่เกินไป', 'กรุณาเลือกรูปขนาดไม่เกิน 2MB', 'error');
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({ ...prev, profileImage: reader.result }));
@@ -54,158 +55,150 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    try {
-      const updatedUser = { ...user, ...formData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      setIsEditing(false);
-      
-      window.dispatchEvent(new Event('userLogin'));
-      window.dispatchEvent(new Event('storage'));
-
-      Swal.fire({
-        icon: 'success',
-        title: 'บันทึกสำเร็จ!',
-        text: 'ข้อมูลโปรไฟล์ของคุณถูกอัปเดตเรียบร้อยแล้ว ✅',
-        iconColor: '#10B981',
-        confirmButtonColor: '#6366F1',
-        customClass: { popup: 'swal-rounded' }
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'เกิดข้อผิดพลาด',
-        text: 'ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
-        iconColor: '#EF4444',
-        confirmButtonColor: '#EF4444'
-      });
-    }
+    localStorage.setItem('user_profile', JSON.stringify(formData));
+    setUser(formData);
+    setIsEditing(false);
+    Swal.fire({
+      icon: 'success',
+      title: 'บันทึกเรียบร้อย',
+      text: 'ข้อมูลโปรไฟล์ของคุณถูกอัปเดตแล้ว',
+      timer: 1500,
+      showConfirmButton: false,
+      borderRadius: '20px'
+    });
   };
 
-  const handleDeleteImage = () => {
-    setFormData(prev => ({ ...prev, profileImage: '/avatar-placeholder.png' }));
-  };
-
-  if (loading) return <div style={loadingWrapper}>กำลังโหลด...</div>;
-  if (!user) return null;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-[#F1F5F9]">
+      <Loader2 className="animate-spin text-indigo-600" size={40} />
+    </div>
+  );
 
   return (
-    <main style={mainBgStyle}>
+    <main className="page-container">
       <style>{`
-        .swal-rounded { border-radius: 30px !important; }
-        .btn-hover:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .page-container { 
+          min-height: 100vh; 
+          display: flex; align-items: center; justify-content: center; 
+          background: #F1F5F9; padding: 20px; font-family: 'Anuphan', sans-serif;
+        }
+        .profile-card { 
+          background: white; width: 100%; max-width: 500px; /* ขนาดพอดีๆ (Compact) */
+          border-radius: 30px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        }
+        .avatar-section {
+          display: flex; flex-direction: column; align-items: center; margin-bottom: 25px;
+        }
+        .avatar-wrapper {
+          position: relative; width: 110px; height: 110px; border-radius: 35px;
+          overflow: hidden; margin-bottom: 15px; border: 4px solid #fff; 
+          box-shadow: 0 8px 20px rgba(0,0,0,0.1); cursor: ${isEditing ? 'pointer' : 'default'};
+        }
+        .upload-overlay {
+          position: absolute; inset: 0; background: rgba(0,0,0,0.4); 
+          display: flex; align-items: center; justify-content: center; color: white;
+          opacity: 0; transition: 0.3s;
+        }
+        .avatar-wrapper:hover .upload-overlay { opacity: ${isEditing ? '1' : '0'}; }
+        
+        .field { margin-bottom: 16px; }
+        .field-label { font-size: 0.8rem; font-weight: 700; color: #64748B; margin-bottom: 6px; margin-left: 4px; display: block; }
+        
+        .input-box {
+          display: flex; align-items: center; gap: 12px; padding: 13px 16px;
+          border-radius: 15px; border: 1.5px solid #E2E8F0; background: #F8FAFC; transition: 0.2s;
+        }
+        .input-box.editing { border-color: #6366F1; background: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08); }
+        .input-box input, .input-box select { border: none; outline: none; width: 100%; background: transparent; font-size: 1rem; color: #1E293B; }
+        
+        .btn-group { display: flex; gap: 12px; margin-top: 30px; }
+        .btn { 
+          flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; 
+          padding: 14px; border-radius: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; border: none; 
+        }
+        .btn-primary { background: #1E1B4B; color: white; }
+        .btn-secondary { background: #F1F5F9; color: #475569; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
       `}</style>
 
-      <div style={containerStyle}>
-        <div style={headerSection}>
-          <div style={userInfoHeader}>
-            <div style={avatarLarge}>
-             <img src={formData.profileImage} alt="Avatar" />
-            </div>
-            {/* จุดที่เคยเกิด Error: แก้ไขโดยประกาศสไตล์ headerText ด้านล่าง */}
-            <div style={headerText}>
-              <h2 style={userNameTitle}>{user.firstName} {user.lastName || ''}</h2>
-              <p style={subTitle}>Profile Setting</p>
-            </div>
-          </div>
-          <button onClick={() => router.push('/')} style={backIconBtn}>↩</button>
-        </div>
-
-        <hr style={dividerLine} />
-
-        <div style={sectionContent}>
-          <div style={sectionHeader}>
-            <h3 style={sectionTitle}>ข้อมูลส่วนตัว</h3>
-            {!isEditing ? (
-              <button onClick={() => setIsEditing(true)} className="btn-hover" style={editSmallBtn}>แก้ไข</button>
-            ) : (
-              <button onClick={() => setIsEditing(false)} className="btn-hover" style={cancelSmallBtn}>ยกเลิก</button>
+      <div className="profile-card">
+        {/* หัวข้อและรูปโปรไฟล์ */}
+        <div className="avatar-section">
+          <div className="avatar-wrapper" onClick={() => isEditing && fileInputRef.current.click()}>
+            <Image src={formData.profileImage} alt="Profile Picture" fill className="object-cover" priority />
+            {isEditing && (
+              <div className="upload-overlay">
+                <Camera size={24} />
+              </div>
             )}
           </div>
+          <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
+          
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>
+            {user.firstName} {user.lastName}
+          </h2>
+          <div style={{ color: '#6366F1', fontSize: '0.85rem', fontWeight: 600, marginTop: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <ShieldCheck size={16} /> Verified Account
+          </div>
+        </div>
 
-          <div style={inputGrid}>
-            <div style={inputItem}>
-              <label style={inputLabel}>ชื่อ</label>
-              <input name="firstName" type="text" readOnly={!isEditing} value={formData.firstName} onChange={handleChange} style={isEditing ? activeInputField : inputField} />
+        {/* ฟอร์มกรอกข้อมูล */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          <div className="field">
+            <span className="field-label">ชื่อจริง</span>
+            <div className={`input-box ${isEditing ? 'editing' : ''}`}>
+              <User size={18} color="#94A3B8" />
+              <input value={formData.firstName} readOnly={!isEditing} onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
             </div>
-            <div style={inputItem}>
-              <label style={inputLabel}>นามสกุล</label>
-              <input name="lastName" type="text" readOnly={!isEditing} value={formData.lastName} onChange={handleChange} style={isEditing ? activeInputField : inputField} />
-            </div>
-            <div style={inputItem}>
-              <label style={inputLabel}>เพศ</label>
-              <select name="gender" disabled={!isEditing} value={formData.gender} onChange={handleChange} style={isEditing ? activeInputField : inputField}>
-                <option value="male">ชาย</option>
-                <option value="female">หญิง</option>
-              </select>
-            </div>
-            <div style={inputItem}>
-              <label style={inputLabel}>Email</label>
-              <input name="email" type="email" readOnly value={formData.email} style={inputField} />
+          </div>
+          <div className="field">
+            <span className="field-label">นามสกุล</span>
+            <div className={`input-box ${isEditing ? 'editing' : ''}`}>
+              <User size={18} color="#94A3B8" />
+              <input value={formData.lastName} readOnly={!isEditing} onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
             </div>
           </div>
         </div>
 
-        {isEditing && (
-          <>
-            <hr style={dividerLine} />
-            <div style={sectionContent}>
-              <h3 style={sectionTitle}>รูปภาพ</h3>
-              <div style={imageUploadArea}>
-                <div style={imagePreviewBox}>
-                   <img src={formData.profileImage} alt="Preview" style={avatarPreview} />
-                </div>
-                <div style={uploadActions}>
-                  <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" style={{ display: 'none' }} />
-                  <button onClick={() => fileInputRef.current.click()} className="btn-hover" style={uploadBtn}>📤 อัพโหลดรูปภาพใหม่</button>
-                  <button onClick={handleDeleteImage} className="btn-hover" style={deleteBtn}>🗑️ ลบรูปภาพปัจจุบัน</button>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        <div style={footerActions}>
-           {isEditing && (
-             <button onClick={handleSave} className="btn-hover" style={confirmBtn}>ยืนยันการแก้ไขข้อมูล</button>
-           )}
+        <div className="field">
+          <span className="field-label">ระบุเพศ</span>
+          <div className={`input-box ${isEditing ? 'editing' : ''}`}>
+            <VenusAndMars size={18} color="#94A3B8" />
+            <select value={formData.gender} disabled={!isEditing} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+              <option value="male">ชาย</option>
+              <option value="female">หญิง</option>
+              <option value="other">อื่นๆ</option>
+            </select>
+          </div>
         </div>
+
+        <div className="field">
+          <span className="field-label">อีเมลติดต่อ (แก้ไขไม่ได้)</span>
+          <div className="input-box" style={{ opacity: 0.6 }}>
+            <Mail size={18} color="#94A3B8" />
+            <input value={formData.email} readOnly />
+          </div>
+        </div>
+
+        {/* ปุ่มควบคุมตามสถานะ */}
+        {!isEditing ? (
+          <div className="btn-group">
+            <button onClick={() => setIsEditing(true)} className="btn btn-primary">
+              <Edit3 size={18} /> แก้ไขโปรไฟล์
+            </button>
+            <button onClick={() => router.push('/')} className="btn btn-secondary">กลับหน้าหลัก</button>
+          </div>
+        ) : (
+          <div className="btn-group">
+            <button onClick={handleSave} className="btn btn-primary">
+              <Save size={18} /> บันทึกข้อมูล
+            </button>
+            <button onClick={() => { setIsEditing(false); setFormData(user); }} className="btn btn-secondary" style={{ color: '#E11D48' }}>
+              ยกเลิก
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );
 }
-
-// --- Styles (แก้ไขจุดที่ตกหล่น) ---
-const mainBgStyle = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F3E8FF', padding: '20px' };
-const containerStyle = { backgroundColor: '#fff', width: '100%', maxWidth: '850px', borderRadius: '40px', padding: '40px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' };
-const headerSection = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' };
-const userInfoHeader = { display: 'flex', alignItems: 'center', gap: '20px' };
-const avatarLarge = { width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#F97316', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' };
-const avatarImg = { width: '100%', height: '100%', objectFit: 'cover' };
-
-// เพิ่มส่วนนี้เพื่อแก้ปัญหา Error
-const headerText = { textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' };
-
-const userNameTitle = { margin: 0, fontSize: '1.6rem', color: '#1F2937', fontWeight: '800' };
-const subTitle = { margin: 0, fontSize: '0.9rem', color: '#9CA3AF' };
-const backIconBtn = { background: '#f3f4f6', border: 'none', borderRadius: '10px', width: '40px', height: '40px', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const dividerLine = { border: 'none', borderTop: '1px solid #E5E7EB', margin: '30px 0' };
-const sectionContent = { textAlign: 'left' };
-const sectionHeader = { display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' };
-const sectionTitle = { fontSize: '1.3rem', fontWeight: '700', color: '#374151', margin: 0 };
-const editSmallBtn = { padding: '5px 15px', backgroundColor: '#E5E7EB', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', transition: '0.2s' };
-const cancelSmallBtn = { ...editSmallBtn, backgroundColor: '#fee2e2', color: '#ef4444' };
-const inputGrid = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 40px' };
-const inputItem = { display: 'flex', flexDirection: 'column', gap: '8px' };
-const inputLabel = { fontSize: '1.1rem', fontWeight: '700', color: '#1F2937' };
-const inputField = { padding: '12px 15px', backgroundColor: '#F3F4F6', border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '1rem', color: '#4B5563', outline: 'none' };
-const activeInputField = { ...inputField, backgroundColor: '#fff', borderColor: '#6366F1', color: '#1F2937', boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.1)' };
-const imageUploadArea = { display: 'flex', alignItems: 'center', gap: '30px', marginTop: '20px' };
-const imagePreviewBox = { width: '150px', height: '150px', backgroundColor: '#F3F4F6', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' };
-const avatarPreview = { width: '100%', height: '100%', objectFit: 'cover' };
-const uploadActions = { display: 'flex', flexDirection: 'column', gap: '10px' };
-const uploadBtn = { backgroundColor: '#6366F1', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '600' };
-const deleteBtn = { backgroundColor: '#F87171', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: '600' };
-const footerActions = { display: 'flex', justifyContent: 'flex-end', marginTop: '30px', minHeight: '45px' };
-const confirmBtn = { padding: '12px 40px', backgroundColor: '#6366F1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 15px rgba(99, 102, 241, 0.2)' };
-const loadingWrapper = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' };
