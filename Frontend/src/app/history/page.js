@@ -1,14 +1,15 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Swal from 'sweetalert2';
 
-export default function HistoryPage() {
+// สร้าง Component ย่อยเพื่อรองรับ useSearchParams ใน Next.js 13+ (App Router)
+function HistoryContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('history'); // 'history' หรือ 'favorites'
+  const [activeTab, setActiveTab] = useState('history');
 
-  // ข้อมูลสถานที่ทั้งหมด
   const [locations, setLocations] = useState([
     { id: 1, name: 'ปะปานคร นครปฐม', date: '2026-01-11', type: 'forest', isFavorite: false },
     { id: 2, name: 'สวนเบญจกิติ', date: '2025-12-12', type: 'forest', isFavorite: false },
@@ -24,9 +25,14 @@ export default function HistoryPage() {
     } else {
       router.push('/login');
     }
-  }, [router]);
 
-  // ฟังก์ชันสลับสถานะหัวใจ
+    // ตรวจสอบ Tab จาก URL (?tab=favorites)
+    const tab = searchParams.get('tab');
+    if (tab === 'favorites') {
+      setActiveTab('favorites');
+    }
+  }, [router, searchParams]);
+
   const toggleFavorite = (id) => {
     setLocations(prev => prev.map(loc => 
       loc.id === id ? { ...loc, isFavorite: !loc.isFavorite } : loc
@@ -46,7 +52,6 @@ export default function HistoryPage() {
 
   if (!user) return null;
 
-  // กรองข้อมูลตาม Tab ที่เลือก
   const displayData = activeTab === 'history' 
     ? locations 
     : locations.filter(loc => loc.isFavorite);
@@ -54,8 +59,6 @@ export default function HistoryPage() {
   return (
     <main style={mainWrapper}>
       <div style={contentContainer}>
-        
-        {/* --- Sidebar ด้านซ้าย --- */}
         <aside style={sidebarStyle}>
           <div style={userCard}>
             <img src={user.profileImage || '/avatar-placeholder.png'} style={sidebarAvatar} alt="User" />
@@ -72,9 +75,7 @@ export default function HistoryPage() {
 
         <div style={verticalDivider}></div>
 
-        {/* --- เนื้อหาหลักด้านขวา --- */}
         <section style={mainContentStyle}>
-          {/* Tab Switcher */}
           <div style={tabSwitcher}>
             <button 
               onClick={() => setActiveTab('history')}
@@ -99,14 +100,9 @@ export default function HistoryPage() {
               displayData.map((item) => (
                 <div key={item.id} style={historyCard}>
                   <div style={cardLeft}>
-                    {/* ปุ่มหัวใจ */}
-                    <button 
-                      onClick={() => toggleFavorite(item.id)} 
-                      style={heartBtn}
-                    >
+                    <button onClick={() => toggleFavorite(item.id)} style={heartBtn}>
                       {item.isFavorite ? '❤️' : '🤍'}
                     </button>
-                    
                     <div style={cardInfo}>
                       <div style={item.type === 'forest' ? iconForest : iconSea}>
                         {item.type === 'forest' ? '🌳' : '🌊'}
@@ -130,6 +126,15 @@ export default function HistoryPage() {
   );
 }
 
+// Export ตัวหลักที่ครอบด้วย Suspense (จำเป็นสำหรับ useSearchParams)
+export default function HistoryPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HistoryContent />
+    </Suspense>
+  );
+}
+
 // --- Styles (CSS-in-JS) ---
 const mainWrapper = { minHeight: '100vh', backgroundColor: '#F3E8FF', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px 20px', paddingTop: '100px' };
 const contentContainer = { backgroundColor: '#fff', width: '100%', maxWidth: '1000px', borderRadius: '30px', display: 'flex', padding: '40px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)', minHeight: '700px' };
@@ -143,20 +148,15 @@ const filterGroup = { display: 'flex', flexDirection: 'column', gap: '12px' };
 const filterBtn = { border: 'none', padding: '12px 20px', borderRadius: '15px', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer', textAlign: 'left', display: 'flex', gap: '10px' };
 const verticalDivider = { width: '1px', backgroundColor: '#F1F5F9', margin: '0 40px' };
 const mainContentStyle = { flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' };
-
-// Tab Switcher Styles
 const tabSwitcher = { alignSelf: 'center', display: 'flex', backgroundColor: '#F3F4F6', borderRadius: '15px', padding: '5px', marginBottom: '10px' };
 const activeTabBtn = { border: 'none', padding: '8px 25px', borderRadius: '12px', backgroundColor: '#FCA5A5', color: '#fff', fontWeight: '700', cursor: 'pointer', transition: '0.3s' };
 const inactiveTabBtn = { border: 'none', padding: '8px 25px', borderRadius: '12px', backgroundColor: 'transparent', color: '#6B7280', fontWeight: '700', cursor: 'pointer' };
-
 const historyHeader = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F1F5F9', paddingBottom: '15px' };
 const sectionTitle = { fontSize: '1.8rem', fontWeight: '800', color: '#111827', margin: 0 };
 const historyList = { display: 'flex', flexDirection: 'column', gap: '15px' };
-
-// Card Styles
 const historyCard = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', backgroundColor: '#fff', border: '1px solid #F3F4F6', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' };
 const cardLeft = { display: 'flex', alignItems: 'center', gap: '15px' };
-const heartBtn = { background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', padding: '5px', transition: 'transform 0.2s' };
+const heartBtn = { background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer', padding: '5px' };
 const cardInfo = { display: 'flex', alignItems: 'center', gap: '20px' };
 const iconForest = { width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const iconSea = { width: '45px', height: '45px', borderRadius: '50%', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' };

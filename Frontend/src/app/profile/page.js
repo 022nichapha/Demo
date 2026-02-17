@@ -100,7 +100,7 @@ export default function ProfilePage() {
         <div style={headerSection}>
           <div style={userInfoHeader}>
             <div style={avatarLarge}>
-              <img src={formData.profileImage} alt="Profile" style={avatarImg} />
+             <img src={formData.profileImage} alt="Avatar" />
             </div>
             {/* จุดที่เคยเกิด Error: แก้ไขโดยประกาศสไตล์ headerText ด้านล่าง */}
             <div style={headerText}>
